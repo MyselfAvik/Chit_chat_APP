@@ -80,37 +80,20 @@ export const useAuthStore = create((get, set) => ({
   },
   connectSocket: () => {
     const { authUser } = get();
-
-    // Validate user ID before connecting
-    if (!authUser?._id || typeof authUser._id !== "string") {
-      console.error("Invalid user ID for socket connection");
-      return;
-    }
-
-    if (get().socket?.connected) return;
+    if (!authUser || get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
       query: {
         userId: authUser._id,
       },
-      transports: ["websocket"], // Force WebSocket transport
     });
+    socket.connect();
 
-    // Add error handling
-    socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err.message);
-    });
+    set({ socket: socket });
 
     socket.on("getOnlineUsers", (userIds) => {
-      // Validate received user IDs
-      if (Array.isArray(userIds)) {
-        set({ onlineUsers: userIds });
-      } else {
-        console.error("Invalid online users data:", userIds);
-      }
+      set({ onlineUsers: userIds });
     });
-
-    set({ socket });
   },
   disConnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
