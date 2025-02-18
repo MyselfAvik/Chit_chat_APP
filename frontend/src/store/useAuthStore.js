@@ -6,26 +6,36 @@ const BASE_URL =import.meta.env.MODE === "development" ?"http://localhost:5059":
 
 
 export const useAuthStore= create((get,set)=>({
-    authUser:null,
-    isSingingUp:false,
-    isLoggingIn:false,
-    isUpdatingProfile:false,
-    isCheckingAuth:true,
+    authUser: null,
+    isSingingUp: false,
+    isLoggingIn: false, 
+    isUpdatingProfile: false,
+    isCheckingAuth: true,
     onlineUsers: [],
-    socket:null,
-
-    checkAuth: async()=>{
-        try {
-            const res=await axiosInstance.get("/auth/check")
-
-            set({authUser:res.data})
-            get().connectSocket()
-        } catch (error) {
-            console.log("error in checkAuth",error);
-            set({authUser:null})
-        }finally{
-            set({isCheckingAuth:false});
+    socket: null,
+  
+    checkAuth: async () => {
+      try {
+        const res = await axiosInstance.get("/auth/check");
+        
+        // Validate response structure
+        if (res.data && typeof res.data === 'object' && '_id' in res.data) {
+          set({ authUser: res.data });
+          get().connectSocket();
+        } else {
+          console.error('Invalid auth response:', res.data);
+          set({ authUser: null });
         }
+      } catch (error) {
+        console.log("error in checkAuth", error);
+        // Handle HTML response case
+        if (error.response?.headers?.['content-type']?.includes('text/html')) {
+          toast.error("Session expired - please login again");
+        }
+        set({ authUser: null });
+      } finally {
+        set({ isCheckingAuth: false });
+      }
     },
     signup: async (data)=>{
         set({isSingingUp:true});
