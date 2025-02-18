@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 const BASE_URL =import.meta.env.MODE === "development" ?"http://localhost:5059":"/";
 
 
-export const useAuthStore= create((set,get)=>({
+export const useAuthStore= create((get,set)=>({
     authUser:null,
     isSingingUp:false,
     isLoggingIn:false,
@@ -81,22 +81,39 @@ export const useAuthStore= create((set,get)=>({
           set({ isUpdatingProfile: false });
         }
       },
-      connectSocket : ()=>{
+      connectSocket: () => {
         const { authUser } = get();
-        if (!authUser || get().socket?.connected) return;
+        
+        // Validate user ID before connecting
+        if (!authUser?._id || typeof authUser._id !== 'string') {
+          console.error('Invalid user ID for socket connection');
+          return;
+        }
+    
+        if (get().socket?.connected) return;
     
         const socket = io(BASE_URL, {
           query: {
             userId: authUser._id,
           },
+          transports: ['websocket'] // Force WebSocket transport
         });
-        socket.connect();
     
-        set({ socket: socket });
+        // Add error handling
+        socket.on('connect_error', (err) => {
+          console.error('Socket connection error:', err.message);
+        });
     
         socket.on("getOnlineUsers", (userIds) => {
-          set({ onlineUsers: userIds });
+          // Validate received user IDs
+          if (Array.isArray(userIds)) {
+            set({ onlineUsers: userIds });
+          } else {
+            console.error('Invalid online users data:', userIds);
+          }
         });
+    
+        set({ socket });
       },
       disConnectSocket:()=>{
         if (get().socket?.connected) get().socket.disconnect();
