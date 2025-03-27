@@ -21,19 +21,19 @@ This is a **real-time chat application** built using the **MERN stack** (MongoDB
 ## 🎯 Installation & Setup
 ### 1️⃣ Clone the repository
 ```sh
-git clone https://github.com/your-username/chat-app.git
+git clone https://github.com/MyselfAvik/Chit_chat_APP
 cd chat-app
 ```
 
 ### 2️⃣ Install dependencies
 #### Backend
 ```sh
-cd server
+cd backend
 npm install
 ```
 #### Frontend
 ```sh
-cd client
+cd frontend
 npm install
 ```
 
