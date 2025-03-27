@@ -22,7 +22,7 @@ This is a **real-time chat application** built using the **MERN stack** (MongoDB
 ### 1️⃣ Clone the repository
 ```sh
 git clone https://github.com/MyselfAvik/Chit_chat_APP
-cd chat-app
+cd Chit_chat_APP
 ```
 
 ### 2️⃣ Install dependencies
